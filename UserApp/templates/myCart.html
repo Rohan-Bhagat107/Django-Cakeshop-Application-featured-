@@ -1,0 +1,85 @@
+{%extends "home.html"%}
+{%block content%}
+<script type="text/javascript">
+    function increment(qid)
+    {
+        qty=document.getElementById(qid);
+        val=parseInt(qty.value);
+        if (val<5)
+    {
+        val+=1
+    }
+    qty.value=val;
+    }
+    function decrement(qid)
+    {
+        qty=document.getElementById(qid);
+        val=parseInt(qty.value);
+        if (val>1)
+    {
+        val-=1
+    }
+    qty.value=val;
+    }
+    function confirmDelete(itemId) {
+        if (confirm("Are you sure you want to remove this cake from cart?")) {
+            window.location.href = "DeleteCartItem/" + itemId;
+        }
+    }
+    function confirmClear() {
+        if (confirm("Are you sure you want to CLEAR THE CART?")) {
+            window.location.href = "ClearCart";
+        }
+    }
+</script>
+<style>
+    #clear_cart{
+        margin-right: 2cm;   
+    }
+</style>
+<center>
+    
+        <table class="table" >
+    <tr>
+        <th>Cake name</th><th>Image</th><th>Price</th><th>Quantity</th><th>Total Price</th>
+    </tr>
+    {%for item in cart_items%}
+    <form  method="post" id="myform{{item.id}}" action="">
+        {%csrf_token%}
+    <tr>
+        <td>{{item.cake.cake_name}}</td>
+        <td><img src="{{item.cake.image.url}}" class="img-circle" alt="cake image" style="width: 70px; height: 70px;"></td>
+        <td>{{item.cake.price}}</td>
+        <td>{{item.qty}}</td>
+<!-- 
+        <td><button type="button" id="decrement1" class="btn btn-warning" onclick="decrement('qty{{item.cake.id}}');">-</button> -->
+        <!-- <input type="text" value="{{item.qty}}" id="qty{{item.cake.id}}" name="qty" size="2"><button type="button" id="increment1" class="btn-btn-warning" onclick="increment('qty{{item.cake.id}}');">+</button></td>  -->
+        <td>{% widthratio item.cake.price 1 item.qty %}</td>
+
+        <td><input type="hidden" name="cart_id" value="{{item.id}}"></td>
+        <td><input type="hidden" name="qty" value="{{item.qty}}"></td>
+        <td><a href="EditCartItem/{{item.id}}"><button class="bi bi-pencil" type="button">Edit</button></a></td>
+        <td>
+    <button type="button"
+            class="btn btn-danger"
+            onclick="confirmDelete('{{ item.id }}')">
+        <span class="glyphicon glyphicon-trash"></span>
+    </button>
+</td>
+    <td><a href="OrderSingleCake/{{item.id}}/{% widthratio item.cake.price 1 item.qty %}"><button class="btn btn-success" type="button">Place order</button></a></td>
+    </tr>
+    </form>
+    {%endfor%}
+    
+        
+    </tr>
+
+</table>
+<table>
+    <tr><td><button type="button" class="btn btn btn-danger" onclick="confirmClear()" id="clear_cart">Clear Cart</button></td>
+        <td><a href="BuyCart/{{request.session.cart_price}}"><button type="button" class="btn btn-success">Buy Cart- /{{request.session.cart_price}}</button></a></td>
+    </tr></tr>
+</table>
+</center>
+
+{%endblock%}

@@ -1,0 +1,17 @@
+{%extends "home.html"%}
+{%block content%}
+<center>
+    <table class="table">
+        <th>Cake Name</th><th>Order Date</th><th>Amount Paid</th> <th>Delivery Date</th> <th>Card Number</th>
+        {%for order in orders%}
+        <tr>
+            <td>{{order.cake_name}}</td>
+            <td>{{order.order_date}}</td>
+            <td>{{order.amount}}</td>
+            <td>{{order.delivery_date}}</td>
+            <td>{{order.card_no}}</td>
+        </tr>
+        {%endfor%}
+    </table>
+</center>
+{%endblock%}
