@@ -1,17 +1,31 @@
 {%extends "home.html"%}
 {%block content%}
+<script>
+    function confirmClear() {
+        if (confirm("Are you sure you want to clear your order history")) {
+            window.location.href = "ClearHistory"
+        }
+    }
+</script>
 <center>
     <table class="table">
+        <button  type="button" class="btn-warning" style="margin-left: 90%;"  onclick="confirmClear()">Clear History</button>
         <th>Cake Name</th><th>Order Date</th><th>Amount Paid</th> <th>Delivery Date</th> <th>Card Number</th>
-        {%for order in orders%}
-        <tr>
-            <td>{{order.cake_name}}</td>
-            <td>{{order.order_date}}</td>
-            <td>{{order.amount}}</td>
-            <td>{{order.delivery_date}}</td>
-            <td>{{order.card_no}}</td>
-        </tr>
-        {%endfor%}
+        {%if orders%}
+            {%for order in orders%}
+            <tr>
+                <td>{{order.cake_name}}</td>
+                <td>{{order.order_date}}</td>
+                <td>{{order.amount}}</td>
+                <td>{{order.delivery_date}}</td>
+                <td>{{order.card_no}}</td>
+            </tr>
+            {%endfor%}
+        {%else%}
+
+            <tr>
+                <td></td><td></td><td>Nothing orderd yet!</td></tr>
+        {%endif%}
     </table>
 </center>
 {%endblock%}

@@ -213,3 +213,9 @@ def resetPassword(request):
             user.password=pwd
             user.save()
             return redirect(logIn)
+
+def clearHistory(request):
+    if request.method=="GET":
+        if "uname" in request.session:
+            OrderHistory.objects.filter(user=request.session["uname"]).delete()
+            return redirect(getOrderHistory)
