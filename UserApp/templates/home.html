@@ -8,6 +8,14 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  {% if messages %}
+  {% for message in messages %}
+    <script>
+      alert("{{ message }}");
+    </script>
+  {% endfor %}
+{% endif %}
+
   <style>
     /* Remove the navbar's default rounded borders and increase the bottom margin */ 
     .navbar {
@@ -27,7 +35,7 @@
       padding: 25px;
     }
     .panel-body{
-      margin-left: 30px
+      margin-left: 30%
 
     }
     .panel-footer{
@@ -36,6 +44,9 @@
     
     body{
       background-color:  rgb(31, 177, 177);
+    }
+    button{
+      margin-left: 35%;
     }
    
   </style>

@@ -129,7 +129,12 @@ def orderSingleCake(request,cart_id,price):
         if "uname" in request.session:
             cats=Category.objects.all()
             cart=MyCart.objects.get(id=cart_id) #Getting particular cake/item from the MyCart table
-            return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats})
+
+            if int(price)<500:
+                messages.warning(request, "Minimum order value is ₹500. Please add more items.")
+                return redirect(home)
+            else:
+                return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats})
         else:
             return redirect(logIn)
     else:
@@ -165,7 +170,11 @@ def orderWholeCart(request,price):
             cats=Category.objects.all()
             user=request.session["uname"]
             cart=MyCart.objects.filter(user=user)
-            return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats})
+            if int(price)<500:
+                messages.warning(request, "Minimum order value is ₹500. Please add more items.")
+                return redirect(home)
+            else:
+                return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats})
     else:
         #Getting cart details 
         card_no=request.POST["card_no"]

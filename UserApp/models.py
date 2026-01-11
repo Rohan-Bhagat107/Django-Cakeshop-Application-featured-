@@ -47,3 +47,12 @@ class OrderHistory(models.Model):
 
     def __str__(self):
         return f"Order {self.id} - {self.cake_name}"
+
+class CardDetails(models.Model):
+    user=models.ForeignKey(UserInfo,on_delete=models.CASCADE)
+    card_no=models.IntegerField(max_length=12,null=False,unique=True)
+    cvv=models.IntegerField(max_length=3)
+    expiry_date=models.CharField(max_length=7)
+
+    class Meta():
+        db_table="Card Details"
