@@ -7,10 +7,40 @@
     alert("🎉🎉 Order placed successfully!");
 }
 </script>
-{% endif %}
 <center>
+    {%if card%}
     <form method="post">
-    
+        
+            {%csrf_token%}
+            <table class=" table">
+                <tr>
+                    <td>Card Number</td>
+                    <td><input type="number" name="card_no" value="{{card.card_no}}" required></td>
+                </tr>
+                <tr>
+                    <td>Card Holders Name</td>
+                    <td><input type="text" name="holders_name" value="{{card.user.username}}" required></td>
+                </tr>
+                <tr>
+                    <td>Expiry</td>
+                    <td><input type="text" name="expiry" value="{{card.expiry_date}}" required ></td>
+                </tr>
+                <tr>
+                    <td>CVV</td>
+                    <td><input type="number" name="cvv" value="{{card.cvv}}" required></td>
+                </tr>
+                <tr>
+                    <tr><td>Amount Payable</td>
+                    <td><input type="text" readonly value="{{amt}}" name="amt"></td></tr>
+                    <td></td>
+                    <!-- <td><button type="submit" onclick="orderPlaced()"> Make payment</button></td> -->
+                     <td><button type="submit"> Make payment</button></td>
+                </tr>
+            </table>
+        </form>
+    {%else%}
+        <form method="post">
+        
             {%csrf_token%}
             <table class=" table">
                 <tr>
@@ -19,11 +49,11 @@
                 </tr>
                 <tr>
                     <td>Card Holders Name</td>
-                    <td><input type="text" name="holders_name" required></td>
+                    <td><input type="text" name="holders_name"  required></td>
                 </tr>
                 <tr>
                     <td>Expiry</td>
-                    <td><input type="text" name="expiry" required placeholder="mm/yyyy" ></td>
+                    <td><input type="text" name="expiry" required  ></td>
                 </tr>
                 <tr>
                     <td>CVV</td>
@@ -33,11 +63,11 @@
                     <tr><td>Amount Payable</td>
                     <td><input type="text" readonly value="{{amt}}" name="amt"></td></tr>
                     <td></td>
-                    <td><button type="submit" onclick="orderPlaced()"> Make payment</button></td>
+                    <!-- <td><button type="submit" onclick="orderPlaced()"> Make payment</button></td> -->
+                     <td><button type="submit"> Make payment</button></td>
                 </tr>
             </table>
         </form>
-
-    
+    {%endif%}
 </center>
 {%endblock%}
