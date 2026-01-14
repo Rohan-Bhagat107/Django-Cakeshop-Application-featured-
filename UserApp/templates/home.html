@@ -51,7 +51,7 @@
     .jumbotron{
       color: aliceblue;
     }
-   
+    
   </style>
 </head>
 <body>
@@ -82,8 +82,8 @@
         {%endif%}
         <li class="active"><a href="/">Home</a></li>
         <li><a href="#">Products</a></li>
-        <li><a href="#">Deals</a></li>
-        
+
+
          <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">Category
                 <span class="caret"></span></a>
@@ -91,8 +91,28 @@
                   {%for cat in cats%}
                   <li><a href="/ViewCakes/{{cat.id}}">{{cat.cname}}</a></li>
                 {%endfor%}
-                  
+              
                 </ul>
+          
+         <li class="dropdown">
+                
+                <form method="get" action="FilterPrice">
+                <select name="price_range" onchange="this.form.submit()">
+                  <option value="">Select Price</option>
+                  <option value="300-500">300 - 500</option>
+                  <option value="500-700">500 - 700</option>
+                  <option value="700-1000">700 - 1000</option>
+                  <option value="above 1000">Above 1000</option>
+                </select>
+              </form>
+
+                
+                  
+
+                  
+              
+                </ul>
+          
       </ul>
       <ul class="nav navbar-nav navbar-right">
     {% if "uname" in request.session %}

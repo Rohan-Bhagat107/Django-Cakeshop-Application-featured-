@@ -16,5 +16,6 @@ urlpatterns = [
     path("BuyCart/<price>",views.orderWholeCart),
     path("OrderHistory",views.getOrderHistory),
     path("ResetPassword",views.resetPassword),
-    path("ClearHistory",views.clearHistory)
+    path("ClearHistory",views.clearHistory),
+    path("FilterPrice",views.get_FilterCakesByPrice)
 ]

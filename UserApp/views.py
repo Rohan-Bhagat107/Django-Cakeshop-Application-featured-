@@ -77,12 +77,9 @@ def logIn(request):
             # if user is valid adding user to session
             request.session["uname"]=uname
             request.session.set_expiry(0)  # expires when browser closes
-
             return redirect(home)
 
 def logOut(request):
-
-    # del request.session["uname"]
     request.session.flush()
     return redirect(home)
 #Function for showing cart to the user
@@ -105,11 +102,12 @@ def editCartItem(request,item_id):
             item=MyCart.objects.get(id=item_id) #Getting cart object(item) based on item id
             return render(request,"editItem.html",{"cats":cats,"item":item})
         else:
-            cart=MyCart.objects.get(id=item_id)
-            qty=request.POST["qty"]
-            cart.qty=qty #Updating quantity of item/cake
-            cart.save()
-            return redirect(showCart)
+            if "uname" in request.session:
+                cart=MyCart.objects.get(id=item_id)
+                qty=request.POST["qty"]
+                cart.qty=qty #Updating quantity of item/cake
+                cart.save()
+                return redirect(showCart)
 #Function for deleting particular item/cake from cart based on its cart_id
 def deleteCartItem(request, item_id):
     MyCart.objects.filter(id=item_id).delete()
@@ -135,16 +133,13 @@ def orderSingleCake(request,cart_id,price):
                     return redirect(home)
             else:
                 try:
-                    card=CardDetails.objects.get(user=request.session["uname"])
+                    card=CardDetails.objects.filter(user=request.session["uname"])
                 except:
                     messages.warning(request, "Card details not found! Please fill the form manually")
                     return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats})
                 else:
-                    # if int(price)<500:
-                    #     messages.warning(request, "Minimum order value is ₹500. Please add more items.")
-                    #     return redirect(home)
-                    # else:
-                    card=CardDetails.objects.filter(user=request.session["uname"]).first()
+                    card=CardDetails.objects.filter(user=request.session["uname"]).last()
+                    messages.info(request,"Previous payment details restored!")
                     return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats,"card":card})
         else:
             return redirect(logIn)
@@ -160,11 +155,19 @@ def orderSingleCake(request,cart_id,price):
             messages.warning("Required fields are missing!")
             return redirect(MyCart)
         else:
-            user=UserInfo.objects.get(username=request.session["uname"]) # Getting user object
-            cart=MyCart.objects.get(id=cart_id)
+            if "uname" in request.session:
+                user=UserInfo.objects.get(username=request.session["uname"]) # Getting user object
+            card_details=CardDetails.objects.create(
+                user=user,
+                card_no=card_no,
+                cvv=cvv,
+                expiry_date=expiry
+                )
+            card_details.save()
 # -------------------------------------------------------
             cart = MyCart.objects.get(id=cart_id) #Getting cart object based on cart id
             #Creating new object of OrderHistory table to add the order details into DB
+            
             order=OrderHistory.objects.create(
                 user=user,
                 cake_name=cart.cake.cake_name,
@@ -176,7 +179,7 @@ def orderSingleCake(request,cart_id,price):
                 )
             cart.delete()   #Removing orderd cake from MyCart
             order.save() #Saving the order info into DB
-        #------------------------------------------
+        # ------------------------------------------
             messages.warning(request, "🎉Order Placed Successfully!")
             return redirect(showCart)
             
@@ -193,54 +196,58 @@ def orderWholeCart(request,price):
                     return redirect(home)
             else:
                 try:
-                    card=CardDetails.objects.get(user=request.session["uname"])
+                    card=CardDetails.objects.filter(user=request.session["uname"])
                 except:
                     messages.warning(request, "Card details not found! Please fill the form manually")
                     return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats})
                 else:
-                    # if int(price)<500:
-                    #     messages.warning(request, "Minimum order value is ₹500. Please add more items.")
-                    #     return redirect(home)
-                    # else:
-                    card=CardDetails.objects.filter(user=request.session["uname"]).first()
-                    return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats,"card":card})
+                    if int(price)<500:
+                        messages.warning(request, "Minimum order value is ₹500. Please add more items.")
+                        return redirect(home)
+                    else:
+                        card=CardDetails.objects.filter(user=request.session["uname"]).first()
+                        messages.info(request, "Previous payment details restored!")
+                        return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats,"card":card})
     else:
         #Getting cart details 
-        card_no=request.POST["card_no"]
-        holders_name=request.POST["holders_name"]
-        expiry=request.POST["expiry"]
-        cvv=request.POST["cvv"]
-        amt=request.POST["amt"]
-        user=UserInfo.objects.get(username=request.session["uname"])
-        cart_items=MyCart.objects.filter(user=user) #Filtering MyCart objects based on username
-        # order=OrderHistory(user=user,order_item=cart,amount=amt,card_no=card_no)
-        # order.save()
-        add_orderhistory(request,card_no,cvv,expiry,)
-        fields_required=[card_no,holders_name,expiry,cvv]
-        if not all(fields_required):
-            messages.warning("Required fields are missing!")
-            return redirect(MyCart)
-        else:
-            card_details=CardDetails.objects.create(
-                user=user,
-                card_no=card_no,
-                cvv=cvv,
-                expiry_date=expiry
-                )
-            card_details.save()
-            for item in cart_items: #Iterating over all items in cart and creating its object for adding them into OrderHistory table.
-                order=OrderHistory.objects.create(
+        if "uname" in request.session:
+            card_no=request.POST["card_no"]
+            holders_name=request.POST["holders_name"]
+            expiry=request.POST["expiry"]
+            cvv=request.POST["cvv"]
+            amt=request.POST["amt"]
+            user=UserInfo.objects.get(username=request.session["uname"])
+            cart_items=MyCart.objects.filter(user=user) #Filtering MyCart objects based on username
+            # order=OrderHistory(user=user,order_item=cart,amount=amt,card_no=card_no)
+            # order.save()
+            fields_required=[card_no,holders_name,expiry,cvv]
+            if not all(fields_required):
+                messages.warning(request, "Required fields are missing!")
+                return redirect(MyCart)
+            else:
+                card_details=CardDetails.objects.create(
                     user=user,
-                    cake_name=item.cake.cake_name,
-                    cake_price=item.cake.price,
-                    quantity=item.qty,
-                    amount=item.cake.price * item.qty,
                     card_no=card_no,
-                    delivery_date=date.today() + timedelta(days=5)
-                )
-            
-            cart_items.delete() #Deleting all items from cart
-            return redirect(home)
+                    cvv=cvv,
+                    expiry_date=expiry
+                    )
+                card_details.save()
+                for item in cart_items: #Iterating over all items in cart and creating its object for adding them into OrderHistory table.
+                    order=OrderHistory.objects.create(
+                        user=user,
+                        cake_name=item.cake.cake_name,
+                        cake_price=item.cake.price,
+                        quantity=item.qty,
+                        amount=item.cake.price * item.qty,
+                        card_no=card_no,
+                        delivery_date=date.today() + timedelta(days=5)
+                    )
+                
+                cart_items.delete() #Deleting all items from cart
+                messages.info(request, "🎉Order Placed Successfully!")
+                return redirect(home)
+
+
 #Function for getting order history based on username
 def getOrderHistory(request):
     if request.method=="GET":
@@ -271,3 +278,14 @@ def clearHistory(request):
         if "uname" in request.session:
             OrderHistory.objects.filter(user=request.session["uname"]).delete()
             return redirect(getOrderHistory)
+# Function for filyering the cakes based on price
+def get_FilterCakesByPrice(request):
+    price=request.GET.get("price_range")
+    if price !="above 1000":
+        price=price.split("-")
+        # print(starting_price,ending_price)
+        filtered_cakes=Cake.objects.filter(price__gte=int(price[0]),price__lte=int(price[1]))
+        return render(request, "home.html",{"cakes":filtered_cakes})
+    else:
+        filterd_cakes=Cake.objects.filter(price__gte=1000)
+        return render(request, "home.html",{"cakes":filterd_cakes})
