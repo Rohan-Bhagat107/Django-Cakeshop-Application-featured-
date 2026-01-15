@@ -6,6 +6,11 @@
             window.location.href = "ClearHistory"
         }
     }
+    function ConfirmOrderCancellation(itemId) {
+        if (confirm("Are you sure you want to Cancel✖️ your order?")) {
+            window.location.href = "CancleOrder/" + itemId;
+        }
+    }
 </script>
 <center>
     <table class="table">
@@ -19,6 +24,7 @@
                 <td>{{order.amount}}</td>
                 <td>{{order.delivery_date}}</td>
                 <td>{{order.card_no}}</td>
+                <td><button type="button" onclick="ConfirmOrderCancellation('{{order.id}}')" >Cancle Order</button></td>
             </tr>
             {%endfor%}
         {%else%}
