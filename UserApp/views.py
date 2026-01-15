@@ -34,14 +34,16 @@ def viewDetails(request,cake_id):
             user=UserInfo.objects.get(username=user)
 
             try:
-                cart=MyCart.objects.get(cake=cake,user=user,qty=qty) #IF exception is thrown means that cake is not present in the cart with same quantity so add that cake in cart
+
+                cart=MyCart.objects.filter(cake=cake,user=user,qty=qty) #IF exception is thrown means that cake is not present in the cart with same quantity so add that cake in cart
             except:
                 cart=MyCart(cake=cake,user=user,qty=qty) #adding new cake in cart
                 cart.save()
                 return redirect(showCart)
             else:
-                messages.warning(request,"Item already present in cart")
-                return redirect(showCart) #if cake is already present in cart then returning response
+
+                messages.warning(request,"Item Already Present in Cart")
+                return redirect(showCart)#if cake is already present in cart then returning response
             
         else:
             return redirect(logIn)
@@ -280,6 +282,7 @@ def clearHistory(request):
         if "uname" in request.session:
             OrderHistory.objects.filter(user=request.session["uname"]).delete()
             return redirect(getOrderHistory)
+
 # Function for filyering the cakes based on price
 def get_FilterCakesByPrice(request):
     price=request.GET.get("price_range")
@@ -291,4 +294,11 @@ def get_FilterCakesByPrice(request):
     else:
         filterd_cakes=Cake.objects.filter(price_gte=1000)
         return render(request, "home.html",{"cakes":filterd_cakes})
+def get_OrderdCakeStatus(request,item_id):
+    if request.method=="GET":
+        if "uname" in request.session:
+            OrderHistory.objects.filter(id=item_id).delete()     #fetching the order from orderhistory table
+            messages.info(request,"Your Order has been cancled!")
+            return redirect(home)
+            
 

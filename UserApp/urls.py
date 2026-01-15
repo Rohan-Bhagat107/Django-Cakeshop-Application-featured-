@@ -17,5 +17,6 @@ urlpatterns = [
     path("OrderHistory",views.getOrderHistory),
     path("ResetPassword",views.resetPassword),
     path("ClearHistory",views.clearHistory),
-    path("FilterPrice",views.get_FilterCakesByPrice)
+    path("FilterPrice",views.get_FilterCakesByPrice),
+    path('CancleOrder/<item_id>',views.get_OrderdCakeStatus)
 ]
