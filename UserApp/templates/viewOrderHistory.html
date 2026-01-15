@@ -13,8 +13,11 @@
         <th>Cake Name</th><th>Order Date</th><th>Amount Paid</th> <th>Delivery Date</th> <th>Card Number</th>
         {%if orders%}
             {%for order in orders%}
+            
             <tr>
                 <td>{{order.cake_name}}</td>
+                <input type="hidden" name="cid" value="{{order.cake.id}}">
+                
                 
                 <td>{{order.order_date}}</td>
                 <td>{{order.amount}}</td>

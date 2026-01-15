@@ -34,13 +34,14 @@ def viewDetails(request,cake_id):
             user=UserInfo.objects.get(username=user)
 
             try:
-                cart=MyCart.objects.filter(cake==cake,user=user,qty=qty) #IF exception is thrown means that cake is not present in the cart with same quantity so add that cake in cart
+                cart=MyCart.objects.get(cake=cake,user=user,qty=qty) #IF exception is thrown means that cake is not present in the cart with same quantity so add that cake in cart
             except:
                 cart=MyCart(cake=cake,user=user,qty=qty) #adding new cake in cart
                 cart.save()
                 return redirect(showCart)
             else:
-                return HttpResponse("Item Already present in cart!") #if cake is already present in cart then returning response
+                messages.warning(request,"Item already present in cart")
+                return redirect(showCart) #if cake is already present in cart then returning response
             
         else:
             return redirect(logIn)
@@ -133,11 +134,12 @@ def orderSingleCake(request,cart_id,price):
                     return redirect(home)
             else:
                 try:
-                    card=CardDetails.objects.filter(user=request.session["uname"])
+                    #Fetching user's card details from previous oroder 
+                    card=CardDetails.objects.filter(user=request.session["uname"]) #If details not found exception is thrown
                 except:
                     messages.warning(request, "Card details not found! Please fill the form manually")
                     return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats})
-                else:
+                else: #Otherwise we fetch the card details and autofill the payment details. 
                     card=CardDetails.objects.filter(user=request.session["uname"]).last()
                     messages.info(request,"Previous payment details restored!")
                     return render(request, "makePayment.html",{"cart":cart,"amt":price,"cats":cats,"card":card})
@@ -253,7 +255,7 @@ def getOrderHistory(request):
     if request.method=="GET":
         if "uname" in request.session:
             user=UserInfo.objects.get(username=request.session["uname"])
-            orders=OrderHistory.objects.filter(user= user)
+            orders=OrderHistory.objects.filter(user=user)
             return render(request,"viewOrderHistory.html",{"orders":orders})
 
 #function for resetting the password
@@ -272,7 +274,7 @@ def resetPassword(request):
             user.password=pwd
             user.save()
             return redirect(logIn)
-
+#Function for clearing the order history
 def clearHistory(request):
     if request.method=="GET":
         if "uname" in request.session:
@@ -287,5 +289,6 @@ def get_FilterCakesByPrice(request):
         filtered_cakes=Cake.objects.filter(price__gte=int(price[0]),price__lte=int(price[1]))
         return render(request, "home.html",{"cakes":filtered_cakes})
     else:
-        filterd_cakes=Cake.objects.filter(price__gte=1000)
+        filterd_cakes=Cake.objects.filter(price_gte=1000)
         return render(request, "home.html",{"cakes":filterd_cakes})
+
