@@ -272,6 +272,17 @@ def clearHistory(request):
         if "uname" in request.session:
             OrderHistory.objects.filter(user=request.session["uname"]).delete()
             return redirect(getOrderHistory)
+
+def get_FilterCakesByPrice(request):
+    price=request.GET.get("price_range")
+    if price !="above 1000":
+        price=price.split("-")
+        # print(starting_price,ending_price)
+        filtered_cakes=Cake.objects.filter(price__gte=int(price[0]),price__lte=int(price[1]))
+        return render(request, "home.html",{"cakes":filtered_cakes})
+    else:
+        filterd_cakes=Cake.objects.filter(price_gte=1000)
+        return render(request, "home.html",{"cakes":filterd_cakes})
 def get_OrderdCakeStatus(request,item_id):
     if request.method=="GET":
         if "uname" in request.session:
