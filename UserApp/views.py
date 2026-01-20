@@ -286,7 +286,10 @@ def get_FilterCakesByPrice(request):
 def get_OrderdCakeStatus(request,item_id):
     if request.method=="GET":
         if "uname" in request.session:
-            OrderHistory.objects.filter(id=item_id).delete()     #fetching the order from orderhistory table
+            # OrderHistory.objects.filter(id=item_id).delete()     #fetching the order from orderhistory table
+            item=OrderHistory.objects.filter(id=item_id)
+            cake_ordered_on=item.order_date
+            canceling_date=cake_ordered_on
             messages.info(request,"Your Order has been cancled!")
             return redirect(home)
             
